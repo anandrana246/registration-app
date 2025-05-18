@@ -1,37 +1,54 @@
-pipeline{
+pipeline {
     agent any
-    tools{
-        maven 'M398'
+
+    tools {
+        maven 'M398'  // Using Maven tool configuration
     }
 
-    stages{
-        stage("Cleanup Workspace"){
-            steps{
-                cleanWs()
-            }
-        }
-        stage("Checkout Code"){
-            steps{
-                checkout scm
-            }    
-        }    
+    environment {
+        REPO = 'https://github.com/anandrana246/registration-app.git'
+    }
 
-        stage("Build Application"){
-            steps{
-                sh "mvn clean package"
+    parameters {
+        choice(name: 'BRANCH', choices: ['main', 'test'], description: 'Branch on which pipeline executes')
+        choice(name: 'ENVIRONMENT', choices: ['Prod', 'Dev', 'Test'], description: 'Environment for Pipeline')
+        string(name: 'SLEEP', defaultValue: '10', description: 'Sleep duration in seconds')
+    }
+
+    stages {
+        stage('Cleanup Workspace') {
+            steps {
+                cleanWs()  // Cleans workspace before execution
             }
         }
-        stage("Test"){
-            steps{
-                sh "mvn test"
-            }    
+
+        stage('Git Checkout') {
+            steps {
+                checkout([$class: 'GitSCM',
+                    branches: [[name: "${params.BRANCH}"]],
+                    userRemoteConfigs: [[url: "${REPO}"]]
+                ])
+            }
         }
-        stage("Printing Parameters"){
-            steps{
-                sh "echo the environmet is ${params.ENVIRONMENT}"
-                sh "echo sleep_time ${params.SLEEP}"
-                sh "sleep ${params.SLEEP}"
-                sh "echo the the branch is ${params.BRANCH}"
+
+        stage('Build Application') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'mvn test'
+            }
+        }
+
+        stage('Printing Parameters') {
+            steps {
+                echo "The environment is ${params.ENVIRONMENT}"
+                echo "Sleep time is ${params.SLEEP}"
+                sh "sleep ${params.SLEEP}" // Ensure sleep command runs properly
+                echo "The branch is ${params.BRANCH}"
             }
         }
     }
