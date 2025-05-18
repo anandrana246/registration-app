@@ -25,6 +25,14 @@ pipeline{
             steps{
                 sh "mvn test"
             }    
-        }    
+        }
+        stage("Printing Parameters"){
+            steps{
+                sh "echo the environmet is ${params.ENVIRONMENT}"
+                sh "echo sleep_time ${params.SLEEP}"
+                sh "sleep ${params.SLEEP}"
+                sh "echo the the branch is ${params.BRANCH}"
+            }
+        }
     }
 }
