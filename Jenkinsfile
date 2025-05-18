@@ -32,6 +32,7 @@ pipeline{
                 sh "echo sleep_time ${params.SLEEP}"
                 sh "sleep ${params.SLEEP}"
                 sh "echo the the branch is ${params.BRANCH}"
+                sh "echo Hello All, Pipeline finished"
             }
         }
     }
